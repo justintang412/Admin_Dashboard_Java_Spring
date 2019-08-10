@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.PerformanceDao">
+	<resultMap id="performanceMap" type="Performance">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="type" column="type" />
+		<result property="customer" column="customer" />
+		<result property="price" column="price" />
+		<result property="manager" column="manager" />
+		<result property="beginDate" column="begin_date" />
+		<result property="endDate" column="end_date" />
+		<result property="description" column="description" />
+		<result property="fileId" column="file_id" />
+		<result property="valid" column="valid" />
+	</resultMap>
+
+
+	<select id="selectPerformances" resultMap="performanceMap">
+		select *
+		from
+		performance
+		order by id desc
+	</select>
+
+	<select id="selectPerformanceById" resultMap="performanceMap">
+		select *
+		from
+		performance
+		where id = #{id}
+	</select>
+
+	<select id="selectPerformancesByPageParam"
+		resultMap="performanceMap">
+		select * from performance where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%"
+			or description like "%"#{search}"%"
+			or customer like "%"#{search}"%"
+			or manager like "%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getPerformanceTotalCount" resultType="int">
+		select count(id) from performance where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%"
+			or description like "%"#{search}"%"
+			or customer like "%"#{search}"%"
+			or manager like "%"#{search}"%")
+		</if>
+	</select>
+
+	<insert id="insertPerformance" parameterType="performance">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		performance
+		(name, type, customer, price, manager, begin_date, end_date, description,
+		file_id, valid)
+		VALUES
+		(#{name}, #{type}, #{customer}, #{price}, #{manager}, #{beginDate}, #{endDate},
+		#{description}, #{fileId}, 1)
+	</insert>
+
+	<update id="updatePerformance" parameterType="performance">
+		UPDATE
+		performance
+		SET
+		name=#{name},
+		type=#{type},
+		customer=#{customer},
+		price=#{price},
+		manager=#{manager},
+		begin_date=#{beginDate},
+		end_date=#{endDate},
+		description=#{description},
+		file_id=#{fileId}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deletePerformance" parameterType="java.lang.Long">
+		update performance
+		SET
+		valid=0
+		WHERE
+		id =#{id}
+	</delete>
+</mapper>

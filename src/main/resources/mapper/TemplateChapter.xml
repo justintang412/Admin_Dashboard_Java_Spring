@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.TemplateChapterDao">
+	<resultMap id="templateChapterMap" type="TemplateChapter">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="templateId" column="template_id" />
+		<result property="description" column="description" />
+		<result property="fileId" column="file_id" />
+		<result property="sort" column="sort" />
+	</resultMap>
+
+
+	<select id="selectTemplateChapters"
+		resultMap="templateChapterMap">
+		select *
+		from
+		template_chapter
+		order by id asc
+	</select>
+
+	<select id="selectTemplateChaptersByTemplateId"
+		resultMap="templateChapterMap">
+		select *
+		from
+		template_chapter where template_id=#{templateId}
+		order by sort asc
+	</select>
+
+	<select id="selectTemplateChapterById"
+		resultMap="templateChapterMap">
+		select *
+		from
+		template_chapter
+		where id = #{id} order by sort
+		asc
+	</select>
+
+	<select id="selectTemplateChaptersByPageParam"
+		resultMap="templateChapterMap">
+		select * from template_chapter where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%" or
+			file_name like "%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getTemplateChapterTotalCount" resultType="int">
+		select count(id) from template_chapter where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%" or
+			file_name like "%"#{search}"%")
+		</if>
+	</select>
+
+	<insert id="insertTemplateChapter"
+		parameterType="TemplateChapter">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		template_chapter
+		(name, description, file_id, template_id,
+		sort)
+		VALUES
+		(#{name}, #{description}, #{fileId}, #{templateId},
+		#{sort})
+	</insert>
+
+	<update id="updateTemplateChapter"
+		parameterType="TemplateChapter">
+		UPDATE
+		template_chapter
+		SET
+		name=#{name},
+		description=#{description},
+		sort = #{sort},
+		file_id=#{fileId}
+		WHERE
+		id =
+		#{id}
+	</update>
+
+	<delete id="deleteTemplateChapter"
+		parameterType="java.lang.Long">
+		delete from template_chapter WHERE id =#{id}
+	</delete>
+
+	<delete id="deleteTemplateChaptersByTemplateId"
+		parameterType="java.lang.Long">
+		delete from template_chapter WHERE template_id =#{id}
+	</delete>
+
+	<update id="addTemplateChapterSortNumberAfterSpecifiedSort"
+		parameterType="java.lang.Long">
+		update template_chapter set
+		sort=(sort+1) where
+		sort>#{sort} and template_id=#{templateId}
+	</update>
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.SysRoleDao">
+	<resultMap id="sysRoleMap" type="SysRole">
+		<id property="id" column="id" />
+		<result property="roleCode" column="role_code" />
+		<result property="roleName" column="role_name" />
+		<collection property="permissions" column="id"
+			ofType="SysPermimssion"
+			select="com.yczx.dao.SysPermissionDao.selectPermissionsByRoleId" />
+	</resultMap>
+	<select id="selectRoleById" resultMap="sysRoleMap">
+		select * from sys_role
+		where id = #{id}
+	</select>
+	<select id="selectRoles" resultMap="sysRoleMap">
+		select * from sys_role
+	</select>
+	<insert id="insertSysRole" parameterType="SysRole">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		sys_role
+		(role_code, role_name)
+		VALUES
+		(#{roleCode}, #{roleName})
+	</insert>
+	<insert id="insertSysRoleAndPermission" parameterType="Map">
+		INSERT INTO
+		m_role_permission
+		(role_id, permission_id)
+		VALUES
+		(#{roleId}, #{permissionId})
+	</insert>
+
+	<delete id="deletePermissionsOfRole" parameterType="Long">
+		delete from
+		m_role_permission
+		where
+		role_id=#{id}
+	</delete>
+
+	<update id="updateSysRole" parameterType="SysRole">
+		UPDATE
+		sys_role
+		SET
+		role_code=#{roleCode},
+		role_name=#{roleName}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteSysRole" parameterType="java.lang.Long">
+		DELETE FROM
+		sys_role
+		WHERE
+		id =#{id}
+	</delete>
+
+	<select id="selectRolesByPageParam" resultMap="sysRoleMap">
+		select * from sys_role 
+		<if test='search != null'>
+			where (role_code like "%"#{search}"%" or role_name like "%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+	<select id="getTotalRoleCount" resultType="int">
+		select count(Id) from sys_role
+		<if test='search != null'>
+			where role_code like "%"#{search}"%" or role_name like "%"#{search}"%"
+		</if>
+	</select>
+</mapper>

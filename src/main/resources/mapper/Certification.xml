@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.CertificationDao">
+	<resultMap id="certificationMap" type="Certification">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="type" column="type" />
+		<result property="description" column="description" />
+		<result property="expireDate" column="expire_date" />
+		<result property="fileId" column="file_id" />
+		<result property="valid" column="valid" />
+	</resultMap>
+
+
+	<select id="selectCertifications" resultMap="certificationMap">
+		select *
+		from
+		certification
+		order by id asc
+	</select>
+
+	<select id="selectCertificationById"
+		resultMap="certificationMap">
+		select *
+		from
+		certification
+		where id = #{id}
+	</select>
+
+	<select id="selectCertificationsByPageParam"
+		resultMap="certificationMap">
+		select * from certification where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%" )
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getCertificationTotalCount" resultType="int">
+		select count(id) from certification where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%" )
+		</if>
+	</select>
+
+	<insert id="insertCertification" parameterType="Certification">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		certification
+		(name, type, description, expire_date,
+		file_id, valid)
+		VALUES
+		(#{name}, #{type}, #{description}, #{expireDate},
+		#{fileId}, 1)
+	</insert>
+
+	<update id="updateCertification" parameterType="Certification">
+		UPDATE
+		certification
+		SET
+		name=#{name},
+		type=#{type},
+		description=#{description},
+		expire_date=#{expireDate},
+		file_id=#{fileId}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteCertification" parameterType="java.lang.Long">
+		update
+		certification
+		SET
+		valid=0
+		WHERE
+		id =#{id}
+	</delete>
+</mapper>

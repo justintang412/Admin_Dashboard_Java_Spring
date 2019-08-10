@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.SysPermissionDao">
+	<resultMap id="sysPermissionMap" type="SysPermission">
+		<id property="id" column="id" />
+		<result property="name" column="p_name" />
+		<result property="code" column="p_code" />
+		<result property="type" column="p_type" />
+		<result property="typeCode" column="p_type" />
+		<result property="typeSort" column="type_sort" />
+		<result property="url" column="p_url" />
+		<result property="sort" column="p_sort" />
+	</resultMap>
+	
+	<resultMap id="sysModuleMap" type="SysModule">
+		<result property="module" column="p_type" />
+		<result property="code" column="type_code" />
+	</resultMap>
+
+	<select id="selectPermissionByModuleAndUserName"
+		resultMap="sysPermissionMap">
+		select p.*
+		from
+		sys_permission p, sys_user u, m_role_permission rp
+		where
+		u.user_name=#{username} and u.role_id=rp.role_id and
+		rp.permission_id=p.id and
+		p.p_type=#{modulename} order by p.p_sort
+	</select>
+
+	<select id="selectModulesByUserName" resultMap="sysModuleMap">
+		select distinct
+		p.p_type as p_type,  p.type_code
+		from
+		sys_permission p, sys_user u, m_role_permission rp
+		where
+		u.user_name=#{userName} and u.role_id=rp.role_id and
+		rp.permission_id=p.id order by p.type_sort
+	</select>
+	
+	<select id="selectPermissionsByRoleId" resultMap="sysPermissionMap">
+		select a.id, a.p_name,
+		a.p_code, a.p_type, a.p_url, a.pid
+		from sys_permission a, m_role_permission b
+		where a.id = b.permission_id and b.role_id=#{roleId} order by a.type_sort asc, p_sort asc
+	</select>
+
+	<select id="selectPermissionById" resultMap="sysPermissionMap">
+		select id, p_name,
+		p_code, p_type, p_url, pid, type_sort
+		from sys_permission
+		where id =
+		#{id}
+	</select>
+	
+	<select id="selectPermissionByModule" resultMap="sysPermissionMap">
+		select * from sys_permission where p_type =#{module} order by p_sort asc
+	</select>
+
+	<select id="selectModules" resultMap="sysModuleMap">
+		select distinct p_type from sys_permission order by type_sort asc
+	</select>
+
+	<select id="selectPermissions" resultMap="sysPermissionMap">
+		select * from sys_permission order by type_sort asc, p_sort asc
+	</select>
+</mapper>

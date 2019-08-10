@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.TemplateTypeDao">
+	<resultMap id="templateTypeMap" type="TemplateType">
+		<id property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="is_valid" column="valid" />
+	</resultMap>
+
+
+	<select id="selectTemplateTypes" resultMap="templateTypeMap">
+		select *
+		from
+		template_type where is_valid=1 
+		order by id asc
+	</select>
+	
+	<select id="selectTemplateTypeById" resultMap="templateTypeMap">
+		select *
+		from
+		template_type
+		where id = #{id}
+	</select>
+
+	<select id="selectTemplateTypesByPageParam" resultMap="templateTypeMap">
+		select * from template_type where is_valid='1'
+		<if test='search != null'>
+           and  (title like "%"#{search}"%"  or description like "%"#{search}"%")  
+        </if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getTemplateTypeTotalCount" resultType="int">
+		select count(id) from template_type where is_valid='1'  
+		<if test='search != null'>
+          and  (title like "%"#{search}"%"  or description like "%"#{search}"%")  
+        </if>
+	</select>
+
+	<insert id="insertTemplateType" parameterType="TemplateType">
+       <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select LAST_INSERT_ID()
+        </selectKey>
+	   INSERT INTO 
+            template_type
+            (title, description, is_valid) 
+        VALUES
+            (#{title}, #{description}, 1)
+    </insert>
+	
+	<update id="updateTemplateType" parameterType="TemplateType" >
+       UPDATE 
+            template_type 
+       SET 
+       title=#{title},
+	   description=#{description}
+       WHERE 
+            id = #{id}
+    </update>
+
+	<delete id="deleteTemplateType" parameterType="java.lang.Long" >
+      update template_type
+       SET
+	    is_valid=0
+	   WHERE 
+             id =#{id}
+    </delete>
+</mapper>

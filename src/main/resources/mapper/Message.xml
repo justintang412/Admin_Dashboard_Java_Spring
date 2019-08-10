@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.MessageDao">
+	<resultMap id="messageMap" type="Message">
+		<id property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="message" column="message" />
+		<result property="creator" column="create_user" />
+		<result property="toPosition" column="to_position" />
+		<result property="toUser" column="to_user" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
+	
+	<select id="selectMessageById" resultMap="messageMap">
+		select * from message where id = #{id}
+	</select>
+	<select id="selectMessagesByMyUserId" resultMap="messageMap">
+		select m.* from message m, sys_user u where u.id=#{myUserId} and u.position_id=m.to_position
+		union
+		select * from message where to_user=#{myUserId} or create_user=#{myUserId}
+	</select>
+	<select id="selectMessagesSentToMe" resultMap="messageMap">
+		select m.* from message m, sys_user u where u.id=#{myUserId} and u.position_id=m.to_position
+		union
+		select * from message where to_user=#{myUserId} 
+	</select>
+	<select id="selectMessagesByPageParam" resultMap="messageMap">
+		select a.* from 
+		(select m.* from message m, sys_user u where u.id=#{myUserId} and u.position_id=m.to_position
+		union
+		select * from message where to_user=#{myUserId} or create_user=#{myUserId}) a
+		<if test='search != null'>
+            where (a.title like "%"#{search}"%"  or a.message like "%"#{search}"%") 
+        </if>
+		 order by a.create_time desc limit #{min}, #{pageSize}
+	</select>
+	<select id="getTotalCount" resultType="int">
+		select count(a.id) from 
+		(select m.* from message m, sys_user u where u.id=#{myUserId} and u.position_id=m.to_position
+		union
+		select * from message where to_user=#{myUserId} or create_user=#{myUserId}) a
+		<if test='search != null'>
+            where (a.title like "%"#{search}"%"  or a.message like "%"#{search}"%") 
+        </if>
+	</select>
+	<select id="getReadCount" resultType="int">
+		select count(*) from message_read where message_id=#{messageId}
+	</select>
+	<select id="isThisMessageRead" resultType="int">
+		select count(*) from message_read where message_id=#{messageId} and reader_id=#{readerId}
+	</select>
+	<insert id="insertMessage" parameterType="Message">
+       <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select LAST_INSERT_ID()
+        </selectKey>
+	   INSERT INTO 
+            message
+            (title, message, create_user, to_position, to_user, create_time) 
+        VALUES
+            (#{title}, #{message}, #{creator}, #{toPosition}, #{toUser}, NOW())
+    </insert>
+	<update id="updateMessage" parameterType="Message" >
+       UPDATE 
+            message 
+       SET 
+       title=#{title},
+	   message=#{message},
+	   create_user=#{creator},
+	   to_position=#{toPosition},
+	   to_user=#{toUser}
+       WHERE 
+            id = #{id}
+    </update>
+	<update id="updateMessageReadStatus">
+       insert into  
+            message_read 
+       (message_id,reader_id,read_time)
+	   values 
+	   ( #{messageId}, #{myUserId}, now())
+    </update>
+	<delete id="deleteMessage" parameterType="java.lang.Long" >
+      delete from message
+       WHERE 
+             id =#{id}
+    </delete>
+	<delete id="deleteMessageRead" parameterType="java.lang.Long" >
+      delete from message_read
+       WHERE 
+             message_id =#{messageId} and reader_id=#{readerId}
+    </delete>
+</mapper>

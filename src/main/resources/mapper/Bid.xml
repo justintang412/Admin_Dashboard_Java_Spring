@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.BidDao">
+	<resultMap id="bidMap" type="Bid">
+		<id property="id" column="id" />
+		<result property="templateId" column="template_id" />
+		<result property="name" column="name" />
+		<result property="manager" column="manager" />
+		<result property="editor" column="editor" />
+		<result property="startTime" column="start_time" />
+		<result property="endTime" column="end_time" />
+		<result property="creator" column="creator" />
+		<result property="createTime" column="create_time" />
+		<result property="description" column="description" />
+		<result property="status" column="status" />
+		<result property="valid" column="valid" />
+	</resultMap>
+
+
+	<select id="selectBidsAsManager" resultMap="bidMap">
+		select *
+		from
+		bid
+		where
+		(#{userId} in (manager) or creator=#{userId}) and valid=1
+		order by id
+		asc
+	</select>
+
+	<select id="selectBidsAsEditor" resultMap="bidMap">
+		select *
+		from
+		bid
+		where
+		#{userId} in (editor) and valid=1
+		order by id asc
+	</select>
+
+	<select id="selectBidById" resultMap="bidMap">
+		select *
+		from
+		bid
+		where id =
+		#{id}
+	</select>
+
+	<select id="selectBidsByPageParamAsManager" resultMap="bidMap">
+		select * from bid where (#{userId} in (manager) or creator=#{userId})
+		and valid=1
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getBidTotalCountAsManager" resultType="int">
+		select count(id) from bid where (#{userId} in (manager) or
+		creator=#{userId}) and valid=1
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%")
+		</if>
+	</select>
+
+	<select id="selectBidsByPageParamAsEditor" resultMap="bidMap">
+		select * from bid where id in (select distinct bid_id from bid_task
+		where #{userId} in (editor_ids)) and valid=1
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getBidTotalCountAsEditor" resultType="int">
+		select count(id) from bid where id in (select distinct bid_id from
+		bid_task where #{userId} in (editor_ids)) and valid=1
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like
+			"%"#{search}"%")
+		</if>
+	</select>
+
+	<insert id="insertBid" parameterType="Bid">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		bid
+		(template_id, name, manager, editor, start_time,
+		end_time, creator, create_time,
+		description, status, valid)
+		VALUES
+		(#{templateId}, #{name}, #{manager}, #{editor}, #{startTime},
+		#{endTime}, #{creator},
+		now(), #{description}, '新建', 1)
+	</insert>
+
+	<update id="updateBid" parameterType="Bid">
+		UPDATE
+		bid
+		SET
+		template_id=#{templateId},
+		name=#{name},
+		manager=#{manager},
+		start_time=#{startTime},
+		end_time=#{endTime},
+		description=#{description}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteBid" parameterType="java.lang.Long">
+		delete from bid
+		WHERE
+		id=#{id}
+	</delete>
+	
+	<delete id="deleteBidTaskByBidId" parameterType="java.lang.Long">
+		delete from bid_task
+		WHERE
+		bid_id=#{id}
+	</delete>
+
+	<update id="upateMainStatus" parameterType="Bid">
+		update bid set
+		status=#{status} where id=#{id}
+	</update>
+
+</mapper>

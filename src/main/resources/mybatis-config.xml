@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+     <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+        <setting name="lazyLoadingEnabled" value="true"/>
+    </settings>
+    <typeAliases>
+        <package name="com.yczx.domain"/>
+    </typeAliases> 
+    <mappers>
+            <mapper resource="mapper/SysUser.xml"/>
+            <mapper resource="mapper/SysRole.xml"/>
+            <mapper resource="mapper/SysPermission.xml"/>
+            <mapper resource="mapper/Position.xml"/>
+            <mapper resource="mapper/Message.xml"/>
+            <mapper resource="mapper/CertificationType.xml"/>
+            <mapper resource="mapper/MaterialType.xml"/>
+            <mapper resource="mapper/TemplateType.xml"/>
+            <mapper resource="mapper/PerformanceType.xml"/>
+            <mapper resource="mapper/Certification.xml"/>
+            <mapper resource="mapper/Material.xml"/>
+            <mapper resource="mapper/Performance.xml"/>
+            <mapper resource="mapper/Template.xml"/>
+            <mapper resource="mapper/TemplateChapter.xml"/>
+            <mapper resource="mapper/Bid.xml"/>
+            <mapper resource="mapper/BidFile.xml"/>
+            <mapper resource="mapper/BidTask.xml"/>
+            <mapper resource="mapper/BidTaskAction.xml"/>
+    </mappers>
+  
+    
+</configuration>

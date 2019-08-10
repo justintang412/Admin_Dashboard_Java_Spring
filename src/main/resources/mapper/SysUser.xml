@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.SysUserDao">
+	<resultMap id="sysUserMap" type="SysUser">
+		<id property="id" column="id" />
+		<result property="usercode" column="user_code" />
+		<result property="username" column="user_name" />
+		<result property="password" column="pass_word" />
+		<result property="salt" column="user_salt" />
+		<association property="position" column="position_id"
+			select="com.yczx.dao.PositionDao.selectPositionById" />
+		<association property="role" column="role_id"
+			select="com.yczx.dao.SysRoleDao.selectRoleById" />
+	</resultMap>
+
+	<select id="selectUserById" resultMap="sysUserMap">
+		select * from sys_user
+		where id = #{id}
+	</select>
+	<select id="selectUserByName" resultMap="sysUserMap">
+		select * from sys_user
+		where user_name = #{username}
+	</select>
+	<select id="selectUsers" resultMap="sysUserMap">
+		select * from sys_user where
+		data_status=1 order by position_id, user_code asc
+	</select>
+	<select id="selectUsersByPageParam" resultMap="sysUserMap">
+		select * from sys_user where data_status=1 
+		<if test='search != null'>
+			and (user_name like "%"#{search}"%" or user_salt like
+			"%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+	<select id="getTotalCount" resultType="int">
+		select count(Id) from sys_user where data_status=1
+		<if test='search != null'>
+			and user_name like "%"#{search}"%" or user_salt like
+			"%"#{search}"%"
+		</if>
+	</select>
+
+	<insert id="insertSysUser" parameterType="SysUser">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		sys_user
+		(user_code, user_name, pass_word, user_salt,
+		position_id, role_id)
+		VALUES
+		(#{usercode}, #{username}, #{password},
+		#{salt}, #{position.id}, #{role.id})
+	</insert>
+	<update id="updateSysUser" parameterType="SysUser">
+		UPDATE
+		sys_user
+		SET
+		user_code=#{usercode},
+		pass_word=#{password},
+		user_salt=#{salt},
+		position_id=#{position.id},
+		role_id=#{role.id}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteSysUser" parameterType="java.lang.Long">
+		update
+		sys_user set
+		data_status='0'
+		WHERE
+		id =#{id}
+	</delete>
+
+	<select id="getUserCountByRoleId" resultType="int">
+		select count(Id)
+		from sys_user where role_id=#{id}
+	</select>
+
+	<select id="selectUsersByUserIds" resultMap="sysUserMap">
+		select * from sys_user where
+		<if test="userIdList != null and userIdList.size>0">
+			id in (
+			<foreach collection="userIdList" item="id" index="index"
+				open="" close="" separator=",">
+				#{id}
+			</foreach>
+			)
+		</if>
+		<if test="userIdList == null or userIdList.size==0">
+			1=0
+		</if>
+	</select>
+</mapper>

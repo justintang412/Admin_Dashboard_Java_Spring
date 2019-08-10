@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.BidTaskActionDao">
+	<resultMap id="bidTaskAction" type="BidTaskAction">
+		<id property="id" column="id" />
+		<result property="actionType" column="action_type" />
+		<result property="description" column="description" />
+		<result property="actionTime" column="action_time" />
+		<result property="actor" column="actor" />
+	</resultMap>
+
+
+	<select id="selectBidTaskActions" resultMap="bidTaskAction">
+		select *
+		from
+		bid_task_action
+		order by id asc
+	</select>
+
+	<select id="selectBidTaskActionById" resultMap="bidTaskAction">
+		select *
+		from
+		bid_task_action
+		where id = #{id}
+	</select>
+
+	<select id="selectBidTaskActionsByPageParam"
+		resultMap="bidTaskAction">
+		select * from bid_task_action where valid='1' 
+		<if test='search != null'>
+			and (actionType like "%"#{search}"%" or description like "%"#{search}"%" )
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getBidTaskActionTotalCount" resultType="int">
+		select count(id) from bid_task_action where valid='1'
+		<if test='search != null'>
+			and (actionType like "%"#{search}"%" or description like
+			"%"#{search}"%")
+		</if>
+	</select>
+
+	<insert id="insertBidTaskAction" parameterType="BidTaskAction">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		bid_task_action
+		(action_type, description, action_time, actor)
+		VALUES
+		(#{actionType}, #{description}, #{actionTime}, #{actor})
+	</insert>
+
+	<update id="updateBidTaskAction" parameterType="BidTaskAction">
+		UPDATE
+		bid_task_action
+		SET
+		action_type=#{actionType},
+		description=#{description},
+		action_time=#{actionTime},
+		actor=#{actor}
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteBidTaskAction" parameterType="java.lang.Long">
+		delete bid_task_action
+		WHERE
+		id =#{id}
+	</delete>
+</mapper>

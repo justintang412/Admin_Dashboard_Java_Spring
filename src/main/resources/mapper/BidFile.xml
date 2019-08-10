@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yczx.dao.BidFileDao">
+	<resultMap id="bidFileMap" type="BidFile">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="path" column="path" />
+		<result property="description" column="description" />
+		<result property="uploadTime" column="upload_time" />
+		<result property="uploader" column="uploader" />
+		<result property="dataStatus" column="data_status" />
+	</resultMap>
+
+
+	<select id="selectBidFiles" resultMap="bidFileMap">
+		select *
+		from
+		bid_file
+		order
+		by id desc
+	</select>
+
+	<select id="selectUnProcessedBidFiles" resultMap="bidFileMap">
+		select *
+		from
+		bid_file
+		where data_status &lt;&gt; 1
+	</select>
+
+	<select id="selectBidFileById" resultMap="bidFileMap">
+		select *
+		from
+		bid_file
+		where id = #{id}
+	</select>
+	
+	<select id="selectBidFileByPath" resultMap="bidFileMap">
+		select *
+		from
+		bid_file
+		where path = #{path}
+	</select>
+	
+
+	<select id="selectBidFilesByPageParam" resultMap="bidFileMap">
+		select * from bid_file where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like "%"#{search}"%")
+		</if>
+		order by id desc limit #{min}, #{pageSize}
+	</select>
+
+	<select id="getBidFileTotalCount" resultType="int">
+		select count(id) from bid_file where valid='1'
+		<if test='search != null'>
+			and (name like "%"#{search}"%" or description like "%"#{search}"%")
+		</if>
+	</select>
+
+	<insert id="insertBidFile" parameterType="BidFile">
+		<selectKey keyProperty="id" order="AFTER"
+			resultType="java.lang.Long">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO
+		bid_file
+		(name, path, description, upload_time, uploader)
+		VALUES
+		(#{name}, #{path}, #{description},now(), #{uploader})
+	</insert>
+
+	<update id="updateBidFile" parameterType="BidFile">
+		UPDATE
+		bid_file
+		SET
+		name=#{name},
+		path=#{path},
+		description=#{description},
+		upload_time=now(),
+		uploader=#{uploader}
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="updateBidFileToIndexed" parameterType="BidFile">
+		UPDATE
+		bid_file
+		SET
+		data_status=1
+		WHERE
+		id = #{id}
+	</update>
+	<update id="updateBidFileToDeleted" parameterType="BidFile">
+		UPDATE
+		bid_file
+		SET
+		data_status=2
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="updateBidFileToDeletedById"
+		parameterType="java.lang.Long">
+		UPDATE
+		bid_file
+		SET
+		data_status=2
+		WHERE
+		id = #{id}
+	</update>
+
+	<delete id="deleteBidFile" parameterType="java.lang.Long">
+		delete from bid_file WHERE id =#{id}
+	</delete>
+</mapper>
