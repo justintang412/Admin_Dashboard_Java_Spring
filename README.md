@@ -51,8 +51,8 @@ It features secure authentication, role-based access control, database interacti
 I'm a Java developer focused on building robust, secure, and maintainable web applications using the Spring ecosystem.  
 Feel free to connect or reach out for job opportunities or collaboration!
 
-- [LinkedIn](linkedin.com/in/justintang412)
-- [Email](justintang412@gmail.com)
+- [LinkedIn](https://linkedin.com/in/justintang412)
+- [Email](mailto:justintang412@gmail.com)
 
 ---
 
