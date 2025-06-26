@@ -54,12 +54,3 @@ Feel free to connect or reach out for job opportunities or collaboration!
 - [LinkedIn](https://linkedin.com/in/justintang412)
 - [Email](mailto:justintang412@gmail.com)
 
----
-
-## 📄 License
-
-Open source under the [MIT License](LICENSE).
-
----
-
-Let me know if you’d like to add a “Highlights” section, sample code snippets, or anything else for your job search!
